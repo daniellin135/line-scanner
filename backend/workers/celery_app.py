@@ -10,7 +10,10 @@ from celery import Celery
 from redis import Redis
 from redis.exceptions import RedisError
 
-from .odds_client import CleanOdds, fetch_upcoming_moneyline_odds
+from db.crud import save_odds_snapshot
+from db.database import SessionLocal
+
+from .odds_client import CleanOdds, fetch_upcoming_moneyline_odds as fetch_sharpapi_odds
 
 
 logger = logging.getLogger(__name__)
@@ -42,17 +45,22 @@ def poll_sharp_odds() -> list[CleanOdds]:
     lock_acquired = False
 
     try:
-        lock_acquired = bool(lock_client.set(
-            POLL_LOCK_KEY,
-            lock_token,
-            nx=True,
-            ex=POLL_LOCK_TTL_SECONDS,
-        ))
+        lock_acquired = bool(
+            lock_client.set(
+                POLL_LOCK_KEY,
+                lock_token,
+                nx=True,
+                ex=POLL_LOCK_TTL_SECONDS,
+            )
+        )
         if not lock_acquired:
             logger.info("Skipping odds poll because another poll is still active.")
             return []
 
-        return asyncio.run(fetch_upcoming_moneyline_odds())
+        raw_odds = asyncio.run(fetch_sharpapi_odds())
+        with SessionLocal() as db:
+            save_odds_snapshot(db, raw_odds)
+        return raw_odds
     except RedisError:
         logger.exception("Unable to acquire the Redis lock for the odds poll.")
         return []

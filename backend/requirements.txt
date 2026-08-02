@@ -4,3 +4,4 @@ sqlalchemy
 psycopg2-binary
 celery[redis]
 aiohttp
+alembic
