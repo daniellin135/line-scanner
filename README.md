@@ -1,6 +1,6 @@
-# Vantage | Real-Time +EV Betting Engine
+# Line Scanner | Real-Time +EV Betting Engine
 
-Vantage is a full-stack data processing engine designed to identify Positive Expected Value (+EV) opportunities in sports betting markets. 
+Line Scanner is a full-stack data processing engine designed to identify Positive Expected Value (+EV) opportunities in sports betting markets. 
 
 By continuously polling sharp sportsbooks (e.g., Pinnacle) and applying the multiplicative method to remove the vigorish, the engine derives the "true" implied probability of an event. It then compares these true odds against retail sportsbooks (e.g., FanDuel) in real-time, pushing mathematically profitable discrepancies to a React dashboard via WebSockets before the lines adjust.
 
