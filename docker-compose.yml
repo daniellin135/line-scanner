@@ -73,6 +73,19 @@ services:
         condition: service_healthy
     restart: unless-stopped
 
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    environment:
+      NEXT_PUBLIC_EV_STREAM_URL: ws://localhost:8000/api/v1/ev-stream
+    ports:
+      - "3000:3000"
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: unless-stopped
+
   migrate:
     build:
       context: ./backend
